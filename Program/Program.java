@@ -19,12 +19,12 @@ public class Program {
     public static boolean connection(String user, String paswd) {
         connectionUrl =
             "jdbc:sqlserver://127.0.0.1:1433;"
-                + "database=DatabaseDesign;"
+                + "database=DataBaseDesign;"
                 + "user=" + user + ";"
                 + "password=" + paswd + ";"
                 + "encrypt=true;"
                 + "trustServerCertificate=true;"
-                + "loginTimeout=30;";
+                + "loginTimeout=3;";
 
         try (Connection conn = DriverManager.getConnection(connectionUrl);) {
             conn.close();
@@ -33,7 +33,7 @@ public class Program {
         }
         // Handle any errors that may have occurred.
         catch (SQLException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             return false;
         }
     }

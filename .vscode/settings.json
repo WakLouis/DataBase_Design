@@ -1,6 +1,10 @@
 {
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "d:\\sqljdbc11\\sqljdbc_10.2\\mssql-jdbc-10.2.0.jre11.jar"
+        "d:\\sqljdbc11\\sqljdbc_10.2\\mssql-jdbc-10.2.0.jre11.jar",
+        "Program\\lib\\mssql-jdbc-12.2.0.jre11.jar"
+    ],
+    "java.project.sourcePaths": [
+        "Program"
     ]
 }
