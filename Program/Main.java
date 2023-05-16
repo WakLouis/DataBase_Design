@@ -5,7 +5,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:52:48
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-16 16:48:15
+ * @LastEditTime: 2023-05-16 17:17:57
  */
 import java.awt.*;
 import javax.swing.*;
@@ -13,7 +13,9 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 //创建欢迎词
 class WelcomeText extends JLabel {
@@ -230,6 +232,22 @@ public class Main {
     static JMenuItem checkOption = new JMenuItem("打卡查询");
     static JMenuItem settingOption = new JMenuItem("退出");
 
+    // 一次性获取TextField控件的方法
+    public static List<JTextField> getTextFieldObject(Component component) {
+        List<JTextField> result = new ArrayList<>();
+        if (component instanceof JPanel) {
+            for (Component com : ((JPanel) component).getComponents()) {
+                List<JTextField> textFields = getTextFieldObject(com);
+                result.addAll(textFields);
+            }
+        } else {
+            if (component instanceof JTextField) {
+                result.add((JTextField) component);
+            }
+        }
+        return result;
+    }
+
     static void loginFrameInit(JFrame f) {
         // f.setLayout(null);
         f.setLocation(400, 200);
@@ -296,11 +314,13 @@ public class Main {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mainFrame.setVisible(false);
-                Container loginPanel = loginFrame.getContentPane();
-                Component textField = loginPanel.getComponent(0);
-                if (textField instanceof JTextField) {
-                    ((JTextField) textField).setText("");
+                var loginPanel = loginFrame.getContentPane();
+                List<JTextField> jTextFields = getTextFieldObject(loginPanel);
+                for (var com : jTextFields) {
+                    com.addFocusListener(new JTextFieldHintListener(com, "请输入用户名"));
+                    com.addFocusListener(new JTextFieldHintListener(com, "请输入密码"));
                 }
+
                 loginFrame.setVisible(true);
             }
         });
