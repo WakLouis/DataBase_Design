@@ -5,11 +5,11 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:52:48
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-09 17:22:05
+ * @LastEditTime: 2023-05-16 16:48:15
  */
 import java.awt.*;
 import javax.swing.*;
-import java.awt.CardLayout;
+
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
@@ -41,6 +41,7 @@ class Panel extends JPanel {
     static JScrollPane displayScorllPane;
     static JScrollPane displayScorllPaneForCtrl;
 
+    // 登录界面
     void loginPanel() {
         setLayout(null);
         setVisible(true);
@@ -73,10 +74,10 @@ class Panel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 boolean flag = Program.connection(user.getText(), paswd.getText());
                 if (flag == true) {
-                    Main.loginFrame.dispose();
+                    // Main.loginFrame.dispose();
+                    Main.loginFrame.setVisible(false);
                     Main.mainFrame = new JFrame();
                     Main.mainFrameInit(Main.mainFrame);
                 } else {
@@ -89,6 +90,7 @@ class Panel extends JPanel {
         add(submitButton);
     }
 
+    // 考勤面板
     void checkPanel() {
         setVisible(true);
         setLayout(null);
@@ -123,7 +125,6 @@ class Panel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 if (Program.fCheck()) {
                     displayArea.append("每日打卡成功！\n");
                     Panel.displayArea.append(
@@ -140,13 +141,13 @@ class Panel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 Program.fQuery();
 
             }
         });
     }
 
+    // 控制面板
     void ctrlPanel() {
         setVisible(true);
         setLayout(null);
@@ -198,7 +199,6 @@ class Panel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 Program.fQueryAll();
             }
         });
@@ -207,7 +207,6 @@ class Panel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 Program.fUpdate(upName.getText(), upDate.getText(), upTo.getText());
             }
         });
@@ -226,8 +225,10 @@ public class Main {
     static JMenuBar menuBar = new JMenuBar();
     static JMenu checkMenu = new JMenu("考勤");
     static JMenu ctrlMenu = new JMenu("管理");
+    static JMenu settingMenu = new JMenu("设置");
     static JMenuItem ctrlOption = new JMenuItem("修改信息");
     static JMenuItem checkOption = new JMenuItem("打卡查询");
+    static JMenuItem settingOption = new JMenuItem("退出");
 
     static void loginFrameInit(JFrame f) {
         // f.setLayout(null);
@@ -269,14 +270,17 @@ public class Main {
         // 创建菜单栏
         checkMenu.add(checkOption);
         ctrlMenu.add(ctrlOption);
+        settingMenu.add(settingOption);
+
         menuBar.add(checkMenu);
         menuBar.add(ctrlMenu);
+        menuBar.add(settingMenu);
+
         f.setJMenuBar(menuBar);
         checkOption.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 cardLayout.show(contentPane, "check");
             }
         });
@@ -284,8 +288,20 @@ public class Main {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
                 cardLayout.show(contentPane, "ctrl");
+            }
+        });
+        settingOption.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.setVisible(false);
+                Container loginPanel = loginFrame.getContentPane();
+                Component textField = loginPanel.getComponent(0);
+                if (textField instanceof JTextField) {
+                    ((JTextField) textField).setText("");
+                }
+                loginFrame.setVisible(true);
             }
         });
 

@@ -4,7 +4,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:31:43
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-09 21:32:28
+ * @LastEditTime: 2023-05-15 17:00:33
  */
 
 import java.sql.Connection;
@@ -68,6 +68,7 @@ public class Program {
             st.execute(sql);
 
             st.close();
+            rs.close();
             con.close();
             return true;
         } catch (SQLException e) {
@@ -156,6 +157,8 @@ public class Program {
             Panel.displayAreaForCtrl.append("操作成功!已将" + Name + "在" + Date + "的值设置为：" + To + "\n");
             Panel.displayAreaForCtrl
                     .append("\n_________________________________________________________________________________\n");
+
+            con.close();
         } catch (SQLException e) {
             Panel.displayAreaForCtrl.append("操作失败！\n");
             Panel.displayAreaForCtrl
