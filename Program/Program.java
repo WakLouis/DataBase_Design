@@ -4,7 +4,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:31:43
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-15 17:00:33
+ * @LastEditTime: 2023-05-17 00:12:43
  */
 
 import java.sql.Connection;
@@ -17,22 +17,37 @@ import java.time.LocalTime;
 
 public class Program {
     static String connectionUrl;
+    static String userString, paswdString;
 
     public static java.sql.Time toSqlTime(LocalTime localTime) {
         return java.sql.Time.valueOf(localTime);
     }
 
     public static boolean connection(String user, String paswd) {
+        userString = user;
+        paswdString = paswd;
         connectionUrl = "jdbc:sqlserver://192.168.137.128:1433;"
                 + "database=DataBaseDesign;"
-                + "user=" + user + ";"
-                + "password=" + paswd + ";"
+                + "user=sa;"
+                + "password=123456;"
                 + "encrypt=true;"
                 + "trustServerCertificate=true;"
                 + "loginTimeout=3;";
 
-        try (Connection conn = DriverManager.getConnection(connectionUrl);) {
-            conn.close();
+        try (Connection con = DriverManager.getConnection(connectionUrl);) {
+
+            // 验证用户名和密码
+            String sql = "SELECT 密码 FROM dbo.员工表 WHERE 员工编号 = " + user;
+            java.sql.Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            rs.next();
+            String truePaswd = rs.getString("密码");
+            truePaswd = truePaswd.replaceAll(" ", "");
+            if (!paswd.equals(truePaswd)) {
+                con.close();
+                return false;
+            }
+            con.close();
             return true;
 
         }
@@ -63,7 +78,7 @@ public class Program {
             }
 
             // 打卡
-            sql = ("EXEC proc_check @checkFlag = " + flag).toString();
+            sql = ("EXEC proc_check @checkFlag = " + flag + " ,@checkName = " + userString).toString();
 
             st.execute(sql);
 
@@ -80,7 +95,7 @@ public class Program {
     public static void fQuery() {
         try {
             Connection con = DriverManager.getConnection(connectionUrl);
-            String sql = "select * from 数据总表 where 员工编号 = SUSER_NAME()";
+            String sql = "select * from 数据总表 where 员工编号 = " + userString;
             java.sql.Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(sql);
             ResultSetMetaData md = rs.getMetaData();
@@ -110,7 +125,8 @@ public class Program {
     }
 
     public static void fQueryAll() {
-        if (Panel.user.getText().equals("1001")) {
+        char level = Panel.user.getText().charAt(0);
+        if (level == '1') {
             Panel.displayAreaForCtrl.append("操作失败！\n");
             Panel.displayAreaForCtrl
                     .append("\n_________________________________________________________________________________\n");
@@ -143,7 +159,8 @@ public class Program {
     }
 
     public static void fUpdate(String Name, String Date, String To) {
-        if (Panel.user.getText().equals("1001")) {
+        char level = Panel.user.getText().charAt(0);
+        if (level == '1') {
             Panel.displayAreaForCtrl.append("操作失败！\n");
             Panel.displayAreaForCtrl
                     .append("\n_________________________________________________________________________________\n");
