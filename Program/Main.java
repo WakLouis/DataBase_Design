@@ -5,7 +5,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:52:48
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-16 17:17:57
+ * @LastEditTime: 2023-05-17 13:08:49
  */
 import java.awt.*;
 import javax.swing.*;
@@ -112,6 +112,12 @@ class Panel extends JPanel {
         queryButton.setContentAreaFilled(false);
         queryButton.setFocusPainted(false);
         add(queryButton);
+
+        MailIconButton mailIconButton = new MailIconButton(25, 25, "./icon/mailIcon.png");
+        mailIconButton.setLocation(740, 5);
+        mailIconButton.setContentAreaFilled(false);
+        mailIconButton.setFocusPainted(false);
+        add(mailIconButton);
 
         displayArea = new JTextArea();
         displayArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));

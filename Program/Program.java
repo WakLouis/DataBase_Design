@@ -1,10 +1,10 @@
 /*
- * @Descripttion: 
+ * @Descripttion: 对接数据库
  * @version: 
  * @Author: WakLouis
  * @Date: 2022-05-23 09:31:43
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-17 00:12:43
+ * @LastEditTime: 2023-05-17 10:43:21
  */
 
 import java.sql.Connection;
