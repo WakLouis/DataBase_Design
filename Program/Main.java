@@ -5,7 +5,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:52:48
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-17 13:08:49
+ * @LastEditTime: 2023-05-18 20:49:16
  */
 import java.awt.*;
 import javax.swing.*;
@@ -176,6 +176,12 @@ class Panel extends JPanel {
         updateButton.setFocusPainted(false);
         add(updateButton);
 
+        MailIconButton mailIconButton = new MailIconButton(25, 25, "./icon/mailIcon.png");
+        mailIconButton.setLocation(740, 5);
+        mailIconButton.setContentAreaFilled(false);
+        mailIconButton.setFocusPainted(false);
+        add(mailIconButton);
+
         displayAreaForCtrl = new JTextArea();
         displayAreaForCtrl.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         displayAreaForCtrl.setBounds(200, 30, 590, 470);
@@ -229,6 +235,9 @@ public class Main {
     static JFrame loginFrame;
     static JFrame mainFrame;
     static JPanel contentPane;
+
+    // 创建邮件系统线程
+    static MailSystem mailSystemThread;
 
     static JMenuBar menuBar = new JMenuBar();
     static JMenu checkMenu = new JMenu("考勤");
@@ -291,6 +300,10 @@ public class Main {
         ctrlPanel.ctrlPanel();
         contentPane.add(ctrlPanel, "ctrl");
 
+        // 创建mail面板
+        mailPanel mailPanel = new mailPanel();
+        contentPane.add(mailPanel, "mail");
+
         // 创建菜单栏
         checkMenu.add(checkOption);
         ctrlMenu.add(ctrlOption);
@@ -327,10 +340,14 @@ public class Main {
                     com.addFocusListener(new JTextFieldHintListener(com, "请输入密码"));
                 }
 
+                mailSystemThread.interrupt();
+
                 loginFrame.setVisible(true);
             }
         });
 
+        mailSystemThread = new MailSystem();
+        mailSystemThread.start();
     }
 
     public static void main(String[] args) {

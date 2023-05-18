@@ -14,6 +14,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 public class Program {
     static String connectionUrl;
@@ -101,12 +102,12 @@ public class Program {
             ResultSetMetaData md = rs.getMetaData();
             int num = md.getColumnCount();
             rs.next();
-            for (int i = 1; i <= md.getColumnCount(); i++) {
+            for (int i = 1; i <= num; i++) {
                 String columnName = md.getColumnName(i);
                 Panel.displayArea.append(String.format("%s\t", columnName));
             }
             Panel.displayArea.append("\n");
-            for (int i = 1; i <= md.getColumnCount(); i++) {
+            for (int i = 1; i <= num; i++) {
                 Panel.displayArea.append(String.format("%s\t", rs.getObject(i)));
             }
             Panel.displayArea
@@ -125,7 +126,7 @@ public class Program {
     }
 
     public static void fQueryAll() {
-        char level = Panel.user.getText().charAt(0);
+        char level = userString.charAt(0);
         if (level == '1') {
             Panel.displayAreaForCtrl.append("操作失败！\n");
             Panel.displayAreaForCtrl
@@ -138,13 +139,14 @@ public class Program {
             java.sql.Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(sql);
             ResultSetMetaData md = rs.getMetaData();
-            for (int i = 1; i <= md.getColumnCount(); i++) {
+            int num = md.getColumnCount();
+            for (int i = 1; i <= num; i++) {
                 String columnName = md.getColumnName(i);
                 Panel.displayAreaForCtrl.append(String.format("%s\t", columnName));
             }
             while (rs.next()) {
                 Panel.displayAreaForCtrl.append("\n");
-                for (int i = 1; i <= md.getColumnCount(); i++) {
+                for (int i = 1; i <= num; i++) {
                     Panel.displayAreaForCtrl.append(String.format("%s\t", rs.getObject(i)));
                 }
             }
@@ -159,7 +161,7 @@ public class Program {
     }
 
     public static void fUpdate(String Name, String Date, String To) {
-        char level = Panel.user.getText().charAt(0);
+        char level = Name.charAt(0);
         if (level == '1') {
             Panel.displayAreaForCtrl.append("操作失败！\n");
             Panel.displayAreaForCtrl
@@ -182,5 +184,33 @@ public class Program {
                     .append("\n_________________________________________________________________________________\n");
             e.printStackTrace();
         }
+    }
+
+    public static ArrayList<Mail> fGetMail() {
+        ArrayList<Mail> mailList = new ArrayList<Mail>();
+        try {
+            Connection con = DriverManager.getConnection(connectionUrl);
+            String sql = "SELECT * FROM [DatabaseDesign].[dbo].[邮件总表] where 收件人集合 LIKE '%" + userString + "%'";
+            java.sql.Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                Mail mail = new Mail();
+                mail.mailID = rs.getString(1);
+                mail.senderID = rs.getString(2);
+                mail.receiverIDSet = rs.getString(3);
+                mail.sendedTime = rs.getTimestamp(4);
+                mail.title = rs.getString(5);
+                mail.content = rs.getString(6);
+                mailList.add(mail);
+            }
+            return mailList;
+
+        } catch (SQLException e) {
+            Panel.displayAreaForCtrl.append("操作失败！\n");
+            Panel.displayAreaForCtrl
+                    .append("\n_________________________________________________________________________________\n");
+            e.printStackTrace();
+        }
+        return null;
     }
 }
