@@ -5,12 +5,15 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:52:48
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-18 20:49:16
+ * @LastEditTime: 2023-05-23 17:49:19
  */
 import java.awt.*;
 import javax.swing.*;
 
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -35,7 +38,7 @@ class Panel extends JPanel {
     // 提交按钮
     static JButton submitButton;
     // 输入框
-    static JTextField user, paswd;
+    static JTextField user, paswd, ipaddress;
     // 显示面板
     static JTextArea displayArea;
     static JTextArea displayAreaForCtrl;
@@ -43,7 +46,7 @@ class Panel extends JPanel {
     static JScrollPane displayScorllPane;
     static JScrollPane displayScorllPaneForCtrl;
 
-    // 登录界面
+    // 登录面板
     void loginPanel() {
         setLayout(null);
         setVisible(true);
@@ -53,10 +56,17 @@ class Panel extends JPanel {
         paswd = new JTextField();
         user.addFocusListener(new JTextFieldHintListener(user, "请输入用户名"));
         paswd.addFocusListener(new JTextFieldHintListener(paswd, "请输入密码"));
-        user.setBounds(300, 170, 200, 40);
-        paswd.setBounds(300, 220, 200, 40);
+        user.setBounds(300, 220, 200, 40);
+        paswd.setBounds(300, 270, 200, 40);
         add(user);
         add(paswd);
+
+        // 连接地址
+        ipaddress = new JTextField();
+        ipaddress.addFocusListener(new JTextFieldHintListener(ipaddress, "连接地址"));
+        ipaddress.setText("192.168.5.128");
+        ipaddress.setBounds(300, 170, 200, 40);
+        add(ipaddress);
 
         // 主体文字
         JLabel loginText = new JLabel("用户登录");
@@ -71,12 +81,12 @@ class Panel extends JPanel {
 
         // 提交按钮功能实现
         submitButton = new JButton("登录");
-        submitButton.setBounds(300, 270, 200, 40);
+        submitButton.setBounds(300, 320, 200, 40);
         submitButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean flag = Program.connection(user.getText(), paswd.getText());
+                boolean flag = Program.connection(user.getText(), paswd.getText(), ipaddress.getText());
                 if (flag == true) {
                     // Main.loginFrame.dispose();
                     Main.loginFrame.setVisible(false);
@@ -226,6 +236,64 @@ class Panel extends JPanel {
         });
 
     }
+
+    // 创建新用户面板
+    static JTextField userID, departmentID, name, sex, birthday, paswdForCreate;
+
+    static JButton submmitButton;
+
+    void createNewUserPanel() {
+        setLayout(null);
+
+        WelcomeText welcomeText = new WelcomeText();
+        welcomeText.welcomeText();
+        add(welcomeText);
+
+        userID = new JTextField();
+        userID.addFocusListener(new JTextFieldHintListener(userID, "员工编号"));
+        userID.setBounds(300, 60, 200, 40);
+        add(userID);
+
+        departmentID = new JTextField();
+        departmentID.addFocusListener(new JTextFieldHintListener(departmentID, "所属部门编号"));
+        departmentID.setBounds(300, 110, 200, 40);
+        add(departmentID);
+
+        name = new JTextField();
+        name.addFocusListener(new JTextFieldHintListener(name, "员工姓名"));
+        name.setBounds(300, 160, 200, 40);
+        add(name);
+
+        sex = new JTextField();
+        sex.addFocusListener(new JTextFieldHintListener(sex, "员工性别"));
+        sex.setBounds(300, 210, 200, 40);
+        add(sex);
+
+        birthday = new JTextField();
+        birthday.addFocusListener(new JTextFieldHintListener(birthday, "出生日期"));
+        birthday.setBounds(300, 260, 200, 40);
+        add(birthday);
+
+        paswdForCreate = new JTextField();
+        paswdForCreate.addFocusListener(new JTextFieldHintListener(paswdForCreate, "账户密码"));
+        paswdForCreate.setBounds(300, 310, 200, 40);
+        add(paswdForCreate);
+
+        submitButton = new JButton("提交");
+        submitButton.setBounds(300, 360, 200, 40);
+        add(submitButton);
+
+        submitButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Program.fCreateNewUser(userID.getText(), departmentID.getText(), name.getText(), sex.getText(),
+                        birthday.getText(), paswdForCreate.getText());
+            }
+
+        });
+
+    }
 }
 
 public class Main {
@@ -240,12 +308,16 @@ public class Main {
     static MailSystem mailSystemThread;
 
     static JMenuBar menuBar = new JMenuBar();
+
     static JMenu checkMenu = new JMenu("考勤");
     static JMenu ctrlMenu = new JMenu("管理");
     static JMenu settingMenu = new JMenu("设置");
+
     static JMenuItem ctrlOption = new JMenuItem("修改信息");
     static JMenuItem checkOption = new JMenuItem("打卡查询");
-    static JMenuItem settingOption = new JMenuItem("退出");
+    static JMenuItem quitOption = new JMenuItem("退出");
+    static JMenuItem sendMailOption = new JMenuItem("发邮件");
+    static JMenuItem createNewUserOption = new JMenuItem("创建用户");
 
     // 一次性获取TextField控件的方法
     public static List<JTextField> getTextFieldObject(Component component) {
@@ -277,12 +349,20 @@ public class Main {
 
     }
 
+    // 主界面创建
     static void mainFrameInit(JFrame f) {
         f.setTitle("数据库管理页面");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setSize(790, 500);
         f.setVisible(true);
         f.setLocation(400, 200);
+        f.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // super.windowClosing(e);
+                System.out.println("Closed!!!");
+            }
+        });
 
         // 创建Frame面板
         contentPane = new JPanel();
@@ -300,14 +380,29 @@ public class Main {
         ctrlPanel.ctrlPanel();
         contentPane.add(ctrlPanel, "ctrl");
 
-        // 创建mail面板
-        mailPanel mailPanel = new mailPanel();
-        contentPane.add(mailPanel, "mail");
+        // 创建receivemail面板
+        mailPanel receiveMailPanel = new mailPanel();
+        receiveMailPanel.receiveMailPanel();
+        contentPane.add(receiveMailPanel, "receiveMail");
+
+        // 创建sendMail面板
+        mailPanel sendMailPanel = new mailPanel();
+        sendMailPanel.sendMailPanel();
+        contentPane.add(sendMailPanel, "sendMail");
+
+        // 创建createUser面板
+        Panel createNewUserPanel = new Panel();
+        createNewUserPanel.createNewUserPanel();
+        contentPane.add(createNewUserPanel, "createNewUserPanel");
 
         // 创建菜单栏
         checkMenu.add(checkOption);
+
         ctrlMenu.add(ctrlOption);
-        settingMenu.add(settingOption);
+        ctrlMenu.add(sendMailOption);
+        ctrlMenu.add(createNewUserOption);
+
+        settingMenu.add(quitOption);
 
         menuBar.add(checkMenu);
         menuBar.add(ctrlMenu);
@@ -328,7 +423,7 @@ public class Main {
                 cardLayout.show(contentPane, "ctrl");
             }
         });
-        settingOption.addActionListener(new ActionListener() {
+        quitOption.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -344,6 +439,22 @@ public class Main {
 
                 loginFrame.setVisible(true);
             }
+        });
+        sendMailOption.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(contentPane, "sendMail");
+            }
+
+        });
+        createNewUserOption.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(contentPane, "createNewUserPanel");
+            }
+
         });
 
         mailSystemThread = new MailSystem();

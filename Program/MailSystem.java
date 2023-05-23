@@ -4,11 +4,13 @@
  * @Author: WakLouis
  * @Date: 2023-05-17 11:00:01
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-18 23:55:19
+ * @LastEditTime: 2023-05-19 15:12:46
  */
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,9 +22,11 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 class MailIconButton extends JButton {
 
@@ -38,7 +42,7 @@ class MailIconButton extends JButton {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Main.cardLayout.show(Main.contentPane, "mail");
+                Main.cardLayout.show(Main.contentPane, "receiveMail");
             }
         });
     }
@@ -50,9 +54,26 @@ class mailPanel extends JPanel {
     static JScrollPane contentJScrollPane;
 
     // 消息框
+    static JPanel mailListPanel;
     static JTextArea displayArea;
 
-    public mailPanel() {
+    // 发送邮件界面的输入框
+    static JTextField receiverIDSetField;
+    static JTextField titleField;
+
+    // 发邮件的文本框
+    static JTextArea mailContentArea;
+
+    // 发邮件的滚动框
+    static JScrollPane mailContentScrollPane;
+
+    // 发送按钮
+    static JButton sendButton;
+
+    // 提示信息
+    static JLabel hintLabel;
+
+    void receiveMailPanel() {
         setVisible(true);
         setLayout(null);
 
@@ -69,8 +90,12 @@ class mailPanel extends JPanel {
         mailListJScrollPane = new JScrollPane();
         contentJScrollPane = new JScrollPane();
 
-        mailListJScrollPane.setBounds(0, 30, 200, 500);
-        contentJScrollPane.setBounds(200, 30, 590, 500);
+        mailListJScrollPane.setBounds(0, 30, 200, 400);
+        contentJScrollPane.setBounds(200, 30, 590, 400);
+
+        mailListPanel = new JPanel();
+        // mailListPanel.setLayout(new GridLayout(300, 1));
+        mailListJScrollPane.setViewportView(mailListPanel);
 
         displayArea = new JTextArea();
         displayArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
@@ -82,6 +107,65 @@ class mailPanel extends JPanel {
 
         add(mailListJScrollPane);
         add(contentJScrollPane);
+    }
+
+    void sendMailPanel() {
+        setVisible(true);
+        setLayout(null);
+
+        WelcomeText welcomeText = new WelcomeText();
+        welcomeText.welcomeText();
+        add(welcomeText);
+
+        MailIconButton mailIconButton = new MailIconButton(25, 25, "./icon/mailIcon.png");
+        mailIconButton.setLocation(740, 5);
+        mailIconButton.setContentAreaFilled(false);
+        mailIconButton.setFocusPainted(false);
+        add(mailIconButton);
+
+        receiverIDSetField = new JTextField();
+        receiverIDSetField.addFocusListener(new JTextFieldHintListener(receiverIDSetField, "收件人"));
+        receiverIDSetField.setBounds(20, 40, 700, 40);
+        add(receiverIDSetField);
+
+        titleField = new JTextField();
+        titleField.addFocusListener(new JTextFieldHintListener(titleField, "标题"));
+        titleField.setBounds(20, 100, 700, 40);
+        add(titleField);
+
+        mailContentArea = new JTextArea();
+        mailContentArea.addFocusListener(new JTextAreaHintListener(mailContentArea, "正文"));
+        mailContentScrollPane = new JScrollPane();
+        mailContentScrollPane.setBounds(20, 160, 700, 200);
+        mailContentScrollPane.setViewportView(mailContentArea);
+        add(mailContentScrollPane);
+
+        sendButton = new JButton("发送");
+        sendButton.setBounds(20, 380, 64, 40);
+        sendButton.setFocusPainted(false);
+        sendButton.setContentAreaFilled(false);
+        add(sendButton);
+
+        hintLabel = new JLabel("");
+        hintLabel.setFont(new Font("宋体", Font.PLAIN, 10));
+        hintLabel.setBounds(100, 380, 164, 40);
+        add(hintLabel);
+
+        sendButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean flag = Program.fSendMail(receiverIDSetField.getText(), titleField.getText(),
+                        mailContentArea.getText());
+                if (flag) {
+                    hintLabel.setText("发送成功！");
+                } else {
+                    hintLabel.setText("发送失败！");
+                }
+            }
+
+        });
+
     }
 }
 
@@ -143,6 +227,15 @@ public class MailSystem extends Thread {
         return result;
     }
 
+    public Component getByName(List list, String Name) {
+        for (Object com : list) {
+            if (((Component) com).getName() == Name) {
+                return (Component) com;
+            }
+        }
+        return null;
+    }
+
     public void run() {
         // 周期向数据库抓取邮件
         while (true) {
@@ -156,22 +249,20 @@ public class MailSystem extends Thread {
             }
 
             mailPanels = getTextFieldObject(Main.contentPane);
-            JScrollPane temp = mailPanels.get(2);
+            JPanel _panel = mailPanel.mailListPanel;
 
-            temp.setVisible(true);
-            temp.setLayout(null);
-            temp.removeAll();
+            _panel.removeAll();
 
-            int num = 0, sep = 50;
+            int num = 0;
             ArrayList<MailButton> mailButtons = new ArrayList<MailButton>();
+            _panel.setLayout(new GridLayout(mailList.size(), 1));
             for (Mail mail : mailList) {
                 MailButton mailButton = new MailButton(mail);
                 mailButtons.add(mailButton);
-                mailButtons.get(num).setBounds(0, sep * num, 200, 50);
-                temp.add(mailButtons.get(num++));
+                _panel.add(mailButtons.get(num++));
             }
 
-            temp.repaint();
+            _panel.repaint();
         }
     }
 }

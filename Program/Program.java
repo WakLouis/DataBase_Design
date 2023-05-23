@@ -4,7 +4,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:31:43
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-17 10:43:21
+ * @LastEditTime: 2023-05-23 17:04:27
  */
 
 import java.sql.Connection;
@@ -13,21 +13,24 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Program {
     static String connectionUrl;
-    static String userString, paswdString;
+    static String userString, paswdString, ipaddressString;
 
     public static java.sql.Time toSqlTime(LocalTime localTime) {
         return java.sql.Time.valueOf(localTime);
     }
 
-    public static boolean connection(String user, String paswd) {
+    public static boolean connection(String user, String paswd, String ipaddress) {
         userString = user;
         paswdString = paswd;
-        connectionUrl = "jdbc:sqlserver://192.168.137.128:1433;"
+        ipaddressString = ipaddress;
+        connectionUrl = "jdbc:sqlserver://" + ipaddressString + ":1433;"
                 + "database=DataBaseDesign;"
                 + "user=sa;"
                 + "password=123456;"
@@ -108,7 +111,19 @@ public class Program {
             }
             Panel.displayArea.append("\n");
             for (int i = 1; i <= num; i++) {
-                Panel.displayArea.append(String.format("%s\t", rs.getObject(i)));
+                if (i <= 3) {
+                    Panel.displayArea.append(String.format("%s\t", rs.getObject(i)));
+                    continue;
+                }
+
+                if ((int) rs.getObject(i) == 1) {
+                    Panel.displayArea.append(String.format("正常\t"));
+                } else if ((int) rs.getObject(i) == 2) {
+                    Panel.displayArea.append(String.format("迟到\t"));
+                } else {
+                    Panel.displayArea.append(String.format("缺勤\t"));
+                }
+                // Panel.displayArea.append(String.format("%s\t", rs.getObject(i)));
             }
             Panel.displayArea
                     .append(String.format("\n您的考勤率为：%.1f", Float.parseFloat(rs.getString("考勤天数")) / (num - 2)));
@@ -212,5 +227,36 @@ public class Program {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static boolean fSendMail(String receiverIDSet, String title, String content) {
+        try {
+            Connection con = DriverManager.getConnection(connectionUrl);
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            String sql = "INSERT dbo.邮件总表(发件人ID, 收件人集合, 发件日期, 邮件标题, 邮件内容) values('" + userString + "','"
+                    + receiverIDSet
+                    + "','" + timestamp + "','" + title + "','" + content + "')";
+            java.sql.Statement st = con.createStatement();
+            st.execute(sql);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean fCreateNewUser(String userID, String departmentID, String name, String sex, String birthday,
+            String paswdForCreate) {
+        try {
+            Connection con = DriverManager.getConnection(connectionUrl);
+            String sql = "INSERT dbo.员工表(员工编号, 部门编号, 姓名, 性别, 出生日期, 密码) values('" + userID + "', '" + departmentID
+                    + "', '" + name + "', '" + sex + "', '" + birthday + "', '" + paswdForCreate + "')";
+            java.sql.Statement st = con.createStatement();
+            st.execute(sql);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
