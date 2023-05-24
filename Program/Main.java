@@ -5,7 +5,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:52:48
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-23 17:49:19
+ * @LastEditTime: 2023-05-24 11:15:28
  */
 import java.awt.*;
 import javax.swing.*;
@@ -239,7 +239,7 @@ class Panel extends JPanel {
 
     // 创建新用户面板
     static JTextField userID, departmentID, name, sex, birthday, paswdForCreate;
-
+    static JLabel hintText;
     static JButton submmitButton;
 
     void createNewUserPanel() {
@@ -287,12 +287,20 @@ class Panel extends JPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Program.fCreateNewUser(userID.getText(), departmentID.getText(), name.getText(), sex.getText(),
-                        birthday.getText(), paswdForCreate.getText());
+                if (Program.fCreateNewUser(userID.getText(), departmentID.getText(), name.getText(), sex.getText(),
+                        birthday.getText(), paswdForCreate.getText())) {
+                    hintText.setText("创建成功！");
+                } else {
+                    hintText.setText("创建失败！");
+                }
             }
 
         });
 
+        hintText = new JLabel("");
+        hintText.setFont(new Font("宋体", Font.PLAIN, 12));
+        hintText.setBounds(372, 390, 164, 40);
+        add(hintText);
     }
 }
 
@@ -359,7 +367,7 @@ public class Main {
         f.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                // super.windowClosing(e);
+                super.windowClosing(e);
                 System.out.println("Closed!!!");
             }
         });
@@ -430,9 +438,25 @@ public class Main {
                 mainFrame.setVisible(false);
                 var loginPanel = loginFrame.getContentPane();
                 List<JTextField> jTextFields = getTextFieldObject(loginPanel);
+
+                int index = 0;
                 for (var com : jTextFields) {
-                    com.addFocusListener(new JTextFieldHintListener(com, "请输入用户名"));
-                    com.addFocusListener(new JTextFieldHintListener(com, "请输入密码"));
+                    switch (index) {
+                        case 0:
+                            com.addFocusListener(new JTextFieldHintListener(com, "请输入用户名"));
+                            index++;
+                            break;
+                        case 1:
+                            com.addFocusListener(new JTextFieldHintListener(com, "请输入密码"));
+                            index++;
+                            break;
+                        case 2:
+                            com.addFocusListener(new JTextFieldHintListener(com, "连接地址"));
+                            ((JTextField) com).setText("192.168.5.128");
+                            index++;
+                            break;
+                    }
+
                 }
 
                 mailSystemThread.interrupt();

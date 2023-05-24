@@ -4,7 +4,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:31:43
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-23 17:04:27
+ * @LastEditTime: 2023-05-24 11:03:44
  */
 
 import java.sql.Connection;
@@ -16,11 +16,18 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Program {
     static String connectionUrl;
     static String userString, paswdString, ipaddressString;
+
+    public static boolean permissionDetection(String Name) {
+        char level = Name.charAt(0);
+        if (level == '1') {
+            return false;
+        }
+        return true;
+    }
 
     public static java.sql.Time toSqlTime(LocalTime localTime) {
         return java.sql.Time.valueOf(localTime);
@@ -141,8 +148,7 @@ public class Program {
     }
 
     public static void fQueryAll() {
-        char level = userString.charAt(0);
-        if (level == '1') {
+        if (!permissionDetection(userString)) {
             Panel.displayAreaForCtrl.append("操作失败！\n");
             Panel.displayAreaForCtrl
                     .append("\n_________________________________________________________________________________\n");
@@ -176,8 +182,7 @@ public class Program {
     }
 
     public static void fUpdate(String Name, String Date, String To) {
-        char level = Name.charAt(0);
-        if (level == '1') {
+        if (!permissionDetection(Name)) {
             Panel.displayAreaForCtrl.append("操作失败！\n");
             Panel.displayAreaForCtrl
                     .append("\n_________________________________________________________________________________\n");
@@ -247,6 +252,9 @@ public class Program {
 
     public static boolean fCreateNewUser(String userID, String departmentID, String name, String sex, String birthday,
             String paswdForCreate) {
+        if (!permissionDetection(userString)) {
+            return false;
+        }
         try {
             Connection con = DriverManager.getConnection(connectionUrl);
             String sql = "INSERT dbo.员工表(员工编号, 部门编号, 姓名, 性别, 出生日期, 密码) values('" + userID + "', '" + departmentID
