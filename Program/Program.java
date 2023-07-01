@@ -4,7 +4,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:31:43
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-24 11:03:44
+ * @LastEditTime: 2023-05-29 15:12:49
  */
 
 import java.sql.Connection;
@@ -133,9 +133,14 @@ public class Program {
                 // Panel.displayArea.append(String.format("%s\t", rs.getObject(i)));
             }
             Panel.displayArea
-                    .append(String.format("\n您的考勤率为：%.1f", Float.parseFloat(rs.getString("考勤天数")) / (num - 2)));
-            Panel.displayArea
-                    .append("\n_________________________________________________________________________________\n");
+                    .append(String.format("\n您的考勤率为: %.1f", Float.parseFloat(rs.getString("考勤天数")) / (num - 3)));
+
+            Panel.displayArea.append("\n");
+            for (int i = 1; i <= num + 4; i++) {
+                Panel.displayArea.append("________");
+            }
+            Panel.displayArea.append("\n");
+
             rs.close();
             con.close();
         } catch (SQLException e) {
@@ -168,11 +173,28 @@ public class Program {
             while (rs.next()) {
                 Panel.displayAreaForCtrl.append("\n");
                 for (int i = 1; i <= num; i++) {
-                    Panel.displayAreaForCtrl.append(String.format("%s\t", rs.getObject(i)));
+                    // Panel.displayAreaForCtrl.append(String.format("%s\t", rs.getObject(i)));
+
+                    if (i <= 3) {
+                        Panel.displayAreaForCtrl.append(String.format("%s\t", rs.getObject(i)));
+                        continue;
+                    }
+
+                    if ((int) rs.getObject(i) == 1) {
+                        Panel.displayAreaForCtrl.append(String.format("正常\t"));
+                    } else if ((int) rs.getObject(i) == 2) {
+                        Panel.displayAreaForCtrl.append(String.format("迟到\t"));
+                    } else {
+                        Panel.displayAreaForCtrl.append(String.format("缺勤\t"));
+                    }
                 }
+
             }
-            Panel.displayAreaForCtrl
-                    .append("\n_________________________________________________________________________________\n");
+            Panel.displayAreaForCtrl.append("\n");
+            for (int i = 1; i <= num + 4; i++) {
+                Panel.displayAreaForCtrl.append("________");
+            }
+            Panel.displayAreaForCtrl.append("\n");
             rs.close();
             con.close();
 
@@ -182,12 +204,18 @@ public class Program {
     }
 
     public static void fUpdate(String Name, String Date, String To) {
-        if (!permissionDetection(Name)) {
-            Panel.displayAreaForCtrl.append("操作失败！\n");
+        if (!permissionDetection(userString)) {
+            Panel.displayAreaForCtrl.append("操作失败！ 当前用户无权限操作！\n");
+            Panel.displayAreaForCtrl
+                    .append("\n_________________________________________________________________________________\n");
+            return;
+        } else if (Name.equals(userString)) {
+            Panel.displayAreaForCtrl.append("操作失败！ 无权限修改自身考勤情况！\n");
             Panel.displayAreaForCtrl
                     .append("\n_________________________________________________________________________________\n");
             return;
         }
+        // System.out.println("'"+Name+ "' '"+ userString+"'");
         try {
             Connection con = DriverManager.getConnection(connectionUrl);
             String sql = "update 数据总表 set \"" + Date + "\" = " + To + " where 员工编号 = " + Name;

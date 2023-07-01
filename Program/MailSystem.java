@@ -4,11 +4,12 @@
  * @Author: WakLouis
  * @Date: 2023-05-17 11:00:01
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-19 15:12:46
+ * @LastEditTime: 2023-05-29 15:02:24
  */
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -17,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -255,7 +257,8 @@ public class MailSystem extends Thread {
 
             int num = 0;
             ArrayList<MailButton> mailButtons = new ArrayList<MailButton>();
-            _panel.setLayout(new GridLayout(mailList.size(), 1));
+            _panel.setLayout(new GridLayout(max(20, mailList.size()), 1));
+            Collections.reverse(mailList);
             for (Mail mail : mailList) {
                 MailButton mailButton = new MailButton(mail);
                 mailButtons.add(mailButton);
@@ -264,5 +267,11 @@ public class MailSystem extends Thread {
 
             _panel.repaint();
         }
+    }
+
+    private int max(int i, int size) {
+        if (i > size)
+            return i;
+        return size;
     }
 }

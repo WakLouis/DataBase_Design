@@ -5,7 +5,7 @@
  * @Author: WakLouis
  * @Date: 2022-05-23 09:52:48
  * @LastEditors: WakLouis
- * @LastEditTime: 2023-05-24 11:15:28
+ * @LastEditTime: 2023-06-05 01:13:13
  */
 import java.awt.*;
 import javax.swing.*;
@@ -13,7 +13,6 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ class Panel extends JPanel {
 
         // 提示文字
         JLabel tipText = new JLabel("");
-        tipText.setBounds(350, 300, 200, 40);
+        tipText.setBounds(350, 350, 200, 40);
         add(tipText);
 
         // 提交按钮功能实现
